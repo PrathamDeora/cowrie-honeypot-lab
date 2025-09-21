@@ -111,3 +111,4 @@ cowrie-honeypot-lab/
 └─ analysis/             # Log analysis & observations
 ```
 
+# cowrie-honeypot-lab
