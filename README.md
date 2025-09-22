@@ -71,12 +71,14 @@ cp etc/cowrie.cfg.dist etc/cowrie.cfg
 ```
 
 * Edit `etc/cowrie.cfg` if needed (e.g., `listen_port = 2222`).
+![Editing port number](screenshots/ssh%20config%20for%20same%20device%20using%201VM.png)
 
 ### 4. Start Cowrie
 
 ```bash
 bin/cowrie start
 ```
+![Cowrie START](screenshots/Cowrie%20start.png)
 
 * Logs are stored in `var/log/cowrie/cowrie.log`
 
@@ -86,7 +88,7 @@ bin/cowrie start
 ssh root@127.0.0.1 -p 2222
 hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://127.0.0.1:2222
 ```
-
+![Cowrie Attack](screenshots/Attack%201.png)
 * Execute commands like `ls` and `whoami` to generate logs.
 
 ---
@@ -99,6 +101,8 @@ hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://127.0.0.1:2222
   * Login attempts
   * Commands executed
   * Session timestamps
+  * 
+![Cowrie SSH Log](screenshots/Cowrie%20Logs.png)
 
 **Example Log Entry:**
 
