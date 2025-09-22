@@ -1,114 +1,152 @@
-# 🛡️ Cowrie SSH Honeypot Lab Project
+# 🛡️ Single VM Cowrie Honeypot Lab Project
 
 ## Project Overview
-This project demonstrates the deployment of a **honeypot using Cowrie** to monitor and log malicious SSH attacks. The honeypot simulates a real Linux SSH server, captures brute-force attempts, attacker commands, and provides logs for analysis.
+
+This project demonstrates the deployment of a **Cowrie SSH honeypot** on a single Kali Linux VM. The honeypot captures SSH brute-force attempts and attacker commands for SOC monitoring and analysis.
 
 **Skills Demonstrated:**
-- Linux system setup
-- Cowrie honeypot installation & configuration
-- SOC monitoring & log analysis
-- Brute-force attack simulation
-- Data collection & visualization
+
+* Linux system setup
+* Cowrie honeypot installation & configuration
+* SSH attack simulation
+* Log analysis and monitoring
+* SOC fundamentals
+
+---
 
 ## Lab Architecture
 
 ```
 +----------------+          +----------------+
 |                |          |                |
-|   Attacker VM  |  ---->   |  Honeypot VM   |
-|  (Kali Linux)  |  SSH     |  (Ubuntu +     |
-|                |          |   Cowrie)      |
+|  Kali Linux VM |   ---->  |  Cowrie SSH HP  |
+| (Attacker +    |  SSH     |  (localhost)   |
+|  Honeypot)     |          |                |
 +----------------+          +----------------+
 ```
 
-- **Honeypot VM IP:** 192.168.56.101  
-- **Attacker VM IP:** 192.168.56.102  
-- **Network Type:** Host-Only / Internal Network  
-- **Purpose:** Safe simulation of attacks without internet exposure
+* Both attacker and honeypot run on the **same VM**.
+* Cowrie listens on **localhost:2222** for SSH connections.
+
+---
 
 ## Tools Used
-| Tool | Purpose |
-|------|---------|
-| Cowrie Honeypot | Simulates SSH/Telnet server, captures attacks |
-| Kali Linux | Simulated attacker machine for penetration testing |
-| Hydra | Performs SSH brute-force attacks |
-| Nmap | Scans open ports on the honeypot |
-| Python3 | Required to run Cowrie |
-| VirtualBox / VMware | Virtual environment to safely host VMs |
+
+| Tool            | Purpose                             |
+| --------------- | ----------------------------------- |
+| Cowrie Honeypot | Simulate SSH server and log attacks |
+| Kali Linux      | Attack simulation & lab environment |
+| Hydra           | Brute-force SSH login attempts      |
+| Nmap            | Port scanning                       |
+| Python3         | Run Cowrie                          |
+
+---
 
 ## Setup Steps
 
-### 1. Prepare the Environment
-- Installed Ubuntu/Debian on Honeypot VM  
-- Installed Kali Linux on Attacker VM  
-- Configured Host-Only network for isolated communication
+### 1. Update Kali Linux
 
-### 2. Install Cowrie on Honeypot
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+### 2. Install Dependencies
+
+```bash
+sudo apt install -y git python3 python3-venv python3-pip virtualenv authbind
+```
+
+### 3. Set Up Cowrie
+
 ```bash
 sudo adduser --disabled-password cowrie
+sudo su - cowrie
 git clone https://github.com/cowrie/cowrie.git
 cd cowrie
 python3 -m venv cowrie-env
 source cowrie-env/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 cp etc/cowrie.cfg.dist etc/cowrie.cfg
+```
+
+* Edit `etc/cowrie.cfg` if needed (e.g., `listen_port = 2222`).
+
+### 4. Start Cowrie
+
+```bash
 bin/cowrie start
 ```
 
-### 3. Simulate Attacks from Kali
-- Port scanning: `nmap -sV 192.168.56.101`  
-- Brute-force SSH:  
+* Logs are stored in `var/log/cowrie/cowrie.log`
+
+### 5. Simulate Attacks Locally
+
 ```bash
-hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://192.168.56.101
+ssh root@127.0.0.1 -p 2222
+hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://127.0.0.1:2222
 ```
-- Commands executed in fake shell are recorded by Cowrie.
+
+* Execute commands like `ls` and `whoami` to generate logs.
+
+---
 
 ## Logs and Analysis
 
-**Captured Data:**
-- Attacker IP addresses
-- Usernames/password attempts
-- Commands executed (e.g., `ls`, `cat /etc/passwd`)
-- Timestamped session recordings
+* **Log file:** `var/log/cowrie/cowrie.log`
+* **Captured data:**
 
-**Example Log Snippet:**
+  * Login attempts
+  * Commands executed
+  * Session timestamps
+
+**Example Log Entry:**
+
 ```
-2025-09-21 14:22:10+0530 [SSHService ssh-connection,1845,192.168.56.102] login attempt [username: root, password: 123456]
-2025-09-21 14:22:15+0530 [SSHService ssh-connection,1845,192.168.56.102] command: ls
-2025-09-21 14:22:20+0530 [SSHService ssh-connection,1845,192.168.56.102] command: cat /etc/passwd
+2025-09-21 14:22:10+0530 [SSHService ssh-connection,1845,127.0.0.1] login attempt [username: root, password: 123456]
+2025-09-21 14:22:15+0530 [SSHService ssh-connection,1845,127.0.0.1] command: ls
 ```
 
-**Observations:**
-- Brute-force attacks occurred within seconds of starting simulation.  
-- Cowrie successfully captured all commands executed in fake SSH environment.  
-- Honeypot provides safe environment to study attacker behavior.
+* Logs help understand attacker behavior and SOC monitoring processes.
+
+---
+
+## Optional Enhancements
+
+* Forward logs to **Splunk** or **ELK** for visualization.
+* Add fake files and banners for realism.
+* Simulate more attack types with custom scripts.
+
+---
 
 ## Project Deliverables
-1. VM Setup Scripts / Instructions  
-2. Cowrie Configuration Files  
-3. Captured Logs  
-4. Analysis Report  
-5. Optional Dashboard (Splunk/ELK)
+
+* `README.md` (this file)
+* Screenshots of log entries or dashboards
+* Optional Splunk/ELK dashboards
+
+---
 
 ## Learning Outcomes
-- Understanding of SSH brute-force attacks  
-- Hands-on experience with honeypot deployment and log management  
-- Skills in setting up safe lab environments for cybersecurity analysis  
-- Insights into attacker behavior and threat monitoring techniques
+
+* Understand SSH brute-force attacks
+* Hands-on honeypot deployment and monitoring
+* Log analysis and attacker behavior observation
+* Practical SOC monitoring experience
+
+---
 
 ## Conclusion
-This project demonstrates the deployment of a honeypot for **practical SOC learning**. It provides a controlled environment to study malicious activity, monitor attack patterns, and improve incident response skills.
+
+This single-VM lab allows safe simulation of cyber attacks and monitoring with Cowrie. It demonstrates SOC-relevant skills and can be used as a **portfolio project** for cybersecurity roles.
+
+---
 
 ## GitHub Repository Structure Suggestion
-```
-cowrie-honeypot-lab/
-│
-├─ README.md             # This project report
-├─ cowrie-config/        # Configuration files
-├─ logs/                 # Sample captured attack logs
-├─ scripts/              # VM setup or helper scripts
-├─ screenshots/          # Screenshots of Cowrie logs & dashboards
-└─ analysis/             # Log analysis & observations
-```
 
-# cowrie-honeypot-lab
+```
+cowrie-single-vm/
+│
+├─ README.md             # Project documentation
+├─ screenshots/          # Screenshots of logs or terminal
+```
