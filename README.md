@@ -91,6 +91,10 @@ hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://127.0.0.1:2222
 ![Cowrie Attack](screenshots/Attack%201.png)
 * Execute commands like `ls` and `whoami` to generate logs.
 
+* After Exploited or Access to root:
+
+![Cowrie Attack](screenshots/Exploited.png)
+
 ---
 
 ## Logs and Analysis
